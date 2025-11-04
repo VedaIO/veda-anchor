@@ -7,6 +7,7 @@
   import Login from './lib/Login.svelte';
   import { onMount } from 'svelte';
   import { isAuthenticated } from './lib/authStore';
+  import Toast from './lib/Toast.svelte';
   import {
     isUninstallModalOpen,
     uninstallPassword,
@@ -84,6 +85,8 @@
   <main class="container mt-4">
     <svelte:component this={routes[$currentPath]} />
   </main>
+
+  <Toast />
 {:else}
   <svelte:component this={routes['/login']} />
 {/if}

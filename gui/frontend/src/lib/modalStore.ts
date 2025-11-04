@@ -22,9 +22,11 @@ export async function handleUninstallSubmit() {
 
   if (response.ok) {
     isUninstallModalOpen.set(false);
-    alert('ProcGuard đã được gỡ cài đặt. Trang sẽ đóng.');
-    window.location.href = 'about:blank';
+    // Give the modal a moment to close before closing the page
+    setTimeout(() => {
+      window.location.href = 'about:blank';
+    }, 500);
   } else {
-    uninstallError.set('Gỡ cài đặt thất bại. Vui lòng kiểm tra lại mật khẩu.');
+    showToast('Gỡ cài đặt thất bại. Vui lòng kiểm tra lại mật khẩu.', 'error');
   }
 }

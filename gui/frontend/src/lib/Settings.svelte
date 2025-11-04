@@ -1,61 +1,55 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { writable } from 'svelte/store';
   import { openUninstallModal } from './modalStore';
+  import { showToast } from './toastStore';
 
   let isAutostartEnabled = false;
-  let autostartStatusText = writable('Không rõ');
-  let autostartStatusClass = writable('bg-secondary');
-  let autostartToggleBtnText = writable('Toggle');
   let autostartToggleBtnDisabled = false;
 
   async function loadAutostartStatus(): Promise<void> {
     try {
-      const res = await fetch('/api/settings/autostart/status');
+      const res = await fetch('/api/settings/autostart/status', {
+        cache: 'no-cache',
+      });
       if (!res.ok) {
-        autostartStatusText.set('Không hỗ trợ trên HĐH này');
-        autostartStatusClass.set('bg-warning');
+        showToast('Không hỗ trợ tự động khởi động trên HĐH này', 'info');
         autostartToggleBtnDisabled = true;
         return;
       }
       const data = await res.json();
       isAutostartEnabled = data.enabled;
 
-      autostartStatusText.set(isAutostartEnabled ? 'Đã bật' : 'Đã tắt');
-      autostartStatusClass.set(
-        isAutostartEnabled ? 'bg-success' : 'bg-secondary'
-      );
-
-      autostartToggleBtnText.set(
-        isAutostartEnabled ? 'Tắt tự động khởi động' : 'Bật tự động khởi động'
-      );
       autostartToggleBtnDisabled = false;
     } catch {
-      autostartStatusText.set('Lỗi');
-      autostartStatusClass.set('bg-danger');
+      showToast('Lỗi khi tải trạng thái tự động khởi động.', 'error');
       autostartToggleBtnDisabled = true;
     }
   }
 
-  function toggleAutostart(): void {
+  async function toggleAutostart(): Promise<void> {
     autostartToggleBtnDisabled = true;
     const endpoint = isAutostartEnabled
       ? '/api/settings/autostart/disable'
       : '/api/settings/autostart/enable';
     try {
-      fetch(endpoint, { method: 'POST' }).then((res) => {
-        if (!res.ok) {
-          res.text().then((errorText) => {
-            alert(`Thao tác thất bại: ${errorText}`);
-          });
-        } else {
-          loadAutostartStatus(); // Refresh status after action
-        }
-      });
-    } catch (e) {
-      if (e instanceof Error) {
-        alert(`Đã xảy ra lỗi: ${e.message}`);
+      const res = await fetch(endpoint, { method: 'POST' });
+      if (!res.ok) {
+        const errorText = await res.text();
+        showToast(`Thao tác thất bại: ${errorText}`, 'error');
+      } else {
+        showToast(
+          isAutostartEnabled
+            ? 'Đã tắt tự động khởi động.'
+            : 'Đã bật tự động khởi động.',
+          'success'
+        );
+        loadAutostartStatus(); // Refresh status after action
       }
+    } catch (e) {
+      showToast(
+        `Đã xảy ra lỗi: ${e instanceof Error ? e.message : 'Unknown error'}`,
+        'error'
+      );
     } finally {
       autostartToggleBtnDisabled = false;
     }
@@ -67,8 +61,6 @@
 </script>
 
 <div id="settings-view">
-  <h2 class="mb-4">Cài đặt</h2>
-
   <div class="row">
     <div class="col-md-8 mx-auto">
       <!-- Autostart Settings Card -->
@@ -79,8 +71,9 @@
         <div class="card-body">
           <p class="card-text">
             Trạng thái:
-            <span class="badge {$autostartStatusClass}"
-              >{$autostartStatusText}</span
+            <span
+              class="badge {isAutostartEnabled ? 'bg-success' : 'bg-secondary'}"
+              >{isAutostartEnabled ? 'Đã bật' : 'Đã tắt'}</span
             >
           </p>
           <p class="card-text">
@@ -93,7 +86,9 @@
             on:click={toggleAutostart}
             disabled={autostartToggleBtnDisabled}
           >
-            {$autostartToggleBtnText}
+            {isAutostartEnabled
+              ? 'Tắt tự động khởi động'
+              : 'Bật tự động khởi động'}
           </button>
         </div>
       </div>

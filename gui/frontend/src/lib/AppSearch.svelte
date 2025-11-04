@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   import SearchResultItem from './SearchResultItem.svelte';
+  import { showToast } from './toastStore';
 
   interface SearchResultItem {
     processName: string;
@@ -16,7 +17,6 @@
   let sinceTime = '';
   let untilDate = '';
   let untilTime = '';
-  let blockStatus = writable('');
   let searchResults = writable<SearchResultItem[]>([]);
   let selectedApps: string[] = [];
 
@@ -86,7 +86,10 @@
 
   async function block(): Promise<void> {
     if (selectedApps.length === 0) {
-      alert('Vui lòng chọn một ứng dụng từ kết quả tìm kiếm để chặn.');
+      showToast(
+        'Vui lòng chọn một ứng dụng từ kết quả tìm kiếm để chặn.',
+        'info'
+      );
       return;
     }
 
@@ -100,14 +103,11 @@
     });
 
     if (!response.ok) {
-      alert(`Error blocking apps: ${response.statusText}`);
+      showToast(`Lỗi chặn ứng dụng: ${response.statusText}`, 'error');
       return;
     }
 
-    blockStatus.set('Đã chặn: ' + uniqueApps.join(', '));
-    setTimeout(() => {
-      blockStatus.set('');
-    }, 3000);
+    showToast(`Đã chặn: ${uniqueApps.join(', ')}`, 'success');
     selectedApps = []; // Clear selection
   }
 
@@ -144,9 +144,6 @@
         Chặn mục đã chọn
       </button>
     </div>
-    {#if $blockStatus}
-      <span id="block-status" class="form-text">{$blockStatus}</span>
-    {/if}
 
     <div class="card mt-3">
       <div class="card-header d-flex align-items-center">

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
+  import { showToast } from './toastStore';
 
   interface WebLogItem {
     timestamp: string;
@@ -101,7 +102,7 @@
       document.querySelectorAll('input[name="web-log-domain"]:checked')
     ).map((cb) => (cb as HTMLInputElement).value);
     if (selectedDomains.length === 0) {
-      alert('Vui lòng chọn một trang web để chặn.');
+      showToast('Vui lòng chọn một trang web để chặn.', 'info');
       return;
     }
 
@@ -115,7 +116,10 @@
       });
     }
 
-    alert('Các trang web đã chọn đã được thêm vào danh sách chặn.');
+    showToast(
+      'Các trang web đã chọn đã được thêm vào danh sách chặn.',
+      'success'
+    );
     // Uncheck all boxes
     (
       document.querySelectorAll(

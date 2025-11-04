@@ -3,6 +3,7 @@
   import WebLeaderboard from './WebLeaderboard.svelte';
   import WebLog from './WebLog.svelte';
   import WebBlocklist from './WebBlocklist.svelte';
+  import { showToast } from './toastStore';
 
   let activeTab: 'leaderboard' | 'log' | 'blocklist' = 'leaderboard';
 
@@ -17,7 +18,7 @@
     <div id="web-extension-not-installed-view" class="text-center">
       <div class="card mt-3">
         <div class="card-body">
-          <h5 class="card-title">Web Extension Not Installed</h5>
+          <h5 class="card-title">Tiện ích mở rộng chưa được cài đặt</h5>
           <p>
             Để theo dõi và chặn các trang web, bạn phải tải tiện ích trình duyệt
             mở rộng của ProcGuard.
@@ -27,8 +28,10 @@
             class="btn btn-primary"
             id="install-extension-btn-web"
             on:click={() =>
-              alert('Install extension functionality not yet implemented.')}
-            >Tải tiện ích</button
+              showToast(
+                'Vui lòng chờ tiện ích khả dụng trên cửa hàng.',
+                'info'
+              )}>Tải tiện ích</button
           >
           <button
             class="btn btn-secondary"
@@ -100,9 +103,9 @@
   {:else}
     <div class="text-center mt-5">
       <div class="spinner-border text-danger" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">Đang tải...</span>
       </div>
-      <p class="mt-2">Checking for extension...</p>
+      <p class="mt-2">Kiểm tra trạng thái tiện ích...</p>
     </div>
   {/if}
 </div>

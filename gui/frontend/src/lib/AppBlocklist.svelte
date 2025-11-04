@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
+  import { showToast } from './toastStore';
 
   interface BlockedApp {
     name: string;
@@ -8,10 +9,9 @@
     commercialName?: string; // Make optional as it will be loaded async
     icon?: string; // Make optional as it will be loaded async
   }
-  // This array will hold the names of the currently selected checkboxes.
-  // Svelte's `bind:group` directive will automatically keep this array in sync with the UI.
-  let selectedApps: string[] = [];
+
   let blocklistItems = writable<BlockedApp[]>([]);
+  let selectedApps: string[] = [];
 
   async function loadBlocklist(): Promise<void> {
     const res = await fetch('/api/blocklist', { cache: 'no-cache' });
@@ -20,7 +20,6 @@
     if (data && data.length > 0) {
       blocklistItems.set(data);
 
-      // Now, fetch the details for each app
       const detailedItems = await Promise.all(
         data.map(async (app) => {
           if (app.exe_path) {
@@ -32,7 +31,7 @@
               return { ...app, ...appDetails };
             }
           }
-          return app; // Return the original app if no path or if fetch fails
+          return app;
         })
       );
       blocklistItems.set(detailedItems);
@@ -40,57 +39,41 @@
       blocklistItems.set([]);
     }
   }
-  let unblockStatus = writable('');
 
-  // Unblocks all applications that are currently selected in the UI.
   async function unblockSelected(): Promise<void> {
     if (selectedApps.length === 0) {
-      alert('Vui lòng chọn các ứng dụng để bỏ chặn.');
+      showToast('Vui lòng chọn các ứng dụng để bỏ chặn.', 'info');
       return;
     }
 
-    // Create an array of fetch promises, one for each selected app.
-    // This allows us to send the removal requests in parallel and handle failures individually.
     const removalPromises = selectedApps.map(async (name) => {
-      // The backend /api/unblock endpoint is designed to accept an array of names.
-      // Here, we send an array with a single name for each request to get per-item success/failure feedback.
       const response = await fetch('/api/unblock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ names: [name] }),
       });
-      // It's important to check if the request was successful. If not, alert the user.
       if (!response.ok) {
-        alert(`Error unblocking ${name}: ${response.statusText}`);
+        showToast(`Lỗi bỏ chặn ${name}: ${response.statusText}`, 'error');
         throw new Error(`Failed to unblock ${name}`);
       }
     });
 
     try {
-      // Wait for all the removal requests to complete.
       await Promise.all(removalPromises);
+      showToast(`Đã bỏ chặn: ${selectedApps.join(', ')}`, 'success');
     } catch {
-      // If any of the promises fail, the error will be caught here.
-      // The individual errors are already alerted, so we just stop execution.
       return;
     }
 
-    unblockStatus.set('Đã bỏ chặn: ' + selectedApps.join(', '));
-    setTimeout(() => {
-      unblockStatus.set('');
-    }, 3000);
-    loadBlocklist(); // Refresh the list
-    selectedApps = []; // Clear the selection
+    loadBlocklist();
+    selectedApps = [];
   }
 
   async function clearBlocklist(): Promise<void> {
     if (confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách chặn không?')) {
       await fetch('/api/blocklist/clear', { method: 'POST' });
-      unblockStatus.set('Đã xóa toàn bộ danh sách chặn.');
-      setTimeout(() => {
-        unblockStatus.set('');
-      }, 3000);
-      loadBlocklist(); // Refresh the list
+      showToast('Đã xóa toàn bộ danh sách chặn.', 'success');
+      loadBlocklist();
     }
   }
 
@@ -120,11 +103,8 @@
       body: formData,
     });
 
-    unblockStatus.set('Đã tải lên và hợp nhất danh sách chặn.');
-    setTimeout(() => {
-      unblockStatus.set('');
-    }, 3000);
-    loadBlocklist(); // Refresh the list
+    showToast('Đã tải lên và hợp nhất danh sách chặn.', 'success');
+    loadBlocklist();
   }
 
   onMount(() => {
@@ -167,9 +147,6 @@
       style="display: none"
       on:change={loadBlocklistFile}
     />
-    {#if $unblockStatus}
-      <span id="unblock-status" class="form-text">{$unblockStatus}</span>
-    {/if}
     <div id="blocklist-items" class="list-group mt-3">
       {#if $blocklistItems.length > 0}
         {#each $blocklistItems as app (app.name)}

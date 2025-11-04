@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
+  import { showToast } from './toastStore';
 
   interface WebBlocklistItem {
     domain: string;
@@ -9,15 +10,8 @@
   }
 
   let webBlocklistItems = writable<WebBlocklistItem[]>([]);
-  let unblockWebStatus = writable('');
-
-  // This array will hold the domains of the currently selected checkboxes.
-  // Svelte's `bind:group` directive will automatically keep this array in sync with the UI.
   let selectedWebsites: string[] = [];
 
-  // Fetches the web blocklist from the backend.
-  // It uses the `cache: 'no-cache'` option to prevent the browser from returning a stale list.
-  // This is crucial for ensuring that the UI reflects the latest state after an item is removed.
   async function loadWebBlocklist(): Promise<void> {
     const res = await fetch('/api/web-blocklist', { cache: 'no-cache' });
     const data = await res.json();
@@ -28,56 +22,49 @@
     }
   }
 
-  // Removes a single domain from the blocklist.
   async function removeWebBlocklist(domain: string): Promise<void> {
     if (confirm(`Bạn có chắc chắn muốn bỏ chặn ${domain} không?`)) {
-      await fetch('/api/web-blocklist/remove', {
+      const response = await fetch('/api/web-blocklist/remove', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ domain: domain }),
       });
-      loadWebBlocklist();
+      if (response.ok) {
+        showToast(`Đã bỏ chặn ${domain}`, 'success');
+        loadWebBlocklist();
+      } else {
+        showToast(`Lỗi bỏ chặn ${domain}: ${response.statusText}`, 'error');
+      }
     }
   }
 
-  // Unblocks all websites that are currently selected in the UI.
   async function unblockSelectedWebsites(): Promise<void> {
     if (selectedWebsites.length === 0) {
-      alert('Vui lòng chọn các trang web để bỏ chặn.');
+      showToast('Vui lòng chọn các trang web để bỏ chặn.', 'info');
       return;
     }
 
-    // Create an array of fetch promises, one for each selected domain.
-    // This allows us to send the removal requests in parallel.
     const removalPromises = selectedWebsites.map(async (domain) => {
       const response = await fetch('/api/web-blocklist/remove', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ domain }),
       });
-      // It's important to check if the request was successful. If not, alert the user.
-      // This helps in diagnosing backend issues (like the 404 error we encountered).
       if (!response.ok) {
-        alert(`Error unblocking ${domain}: ${response.statusText}`);
+        showToast(`Lỗi bỏ chặn ${domain}: ${response.statusText}`, 'error');
         throw new Error(`Failed to unblock ${domain}`);
       }
     });
 
     try {
-      // Wait for all the removal requests to complete.
       await Promise.all(removalPromises);
+      showToast(`Đã bỏ chặn: ${selectedWebsites.join(', ')}`, 'success');
     } catch {
-      // If any of the promises fail, the error will be caught here.
-      // The individual errors are already alerted, so we just stop execution.
       return;
     }
 
-    unblockWebStatus.set('Đã bỏ chặn: ' + selectedWebsites.join(', '));
-    setTimeout(() => {
-      unblockWebStatus.set('');
-    }, 3000);
-    loadWebBlocklist(); // Refresh the list
-    selectedWebsites = []; // Clear the selection
+    loadWebBlocklist();
+    selectedWebsites = [];
   }
 
   async function clearWebBlocklist(): Promise<void> {
@@ -85,11 +72,8 @@
       confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách chặn web không?')
     ) {
       await fetch('/api/web-blocklist/clear', { method: 'POST' });
-      unblockWebStatus.set('Đã xóa toàn bộ danh sách chặn web.');
-      setTimeout(() => {
-        unblockWebStatus.set('');
-      }, 3000);
-      loadWebBlocklist(); // Refresh the list
+      showToast('Đã xóa toàn bộ danh sách chặn web.', 'success');
+      loadWebBlocklist();
     }
   }
 
@@ -119,11 +103,8 @@
       body: formData,
     });
 
-    unblockWebStatus.set('Đã tải lên và hợp nhất danh sách chặn web.');
-    setTimeout(() => {
-      unblockWebStatus.set('');
-    }, 3000);
-    loadWebBlocklist(); // Refresh the list
+    showToast('Đã tải lên và hợp nhất danh sách chặn web.', 'success');
+    loadWebBlocklist();
   }
 
   onMount(() => {
@@ -174,9 +155,6 @@
       style="display: none"
       on:change={loadWebBlocklistFile}
     />
-    {#if $unblockWebStatus}
-      <span id="unblock-web-status" class="form-text">{$unblockWebStatus}</span>
-    {/if}
     <div id="web-blocklist-items" class="list-group mt-3">
       {#if $webBlocklistItems.length > 0}
         {#each $webBlocklistItems as item (item.domain)}
