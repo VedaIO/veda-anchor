@@ -13,10 +13,6 @@ build:
 	@echo "Building ProcGuard for windows..."
 	export PATH=$(shell $(GO_CMD) env GOPATH)/bin:$$PATH && cd procguard-wails && wails build -platform windows/amd64 -ldflags="-X main.version=$(VERSION)"
 
-dev:
-	@echo "Running ProcGuard in development mode..."
-	export PATH=$(shell $(GO_CMD) env GOPATH)/bin:$$PATH && cd procguard-wails && wails dev
-
 fmt:
 	@echo "Formatting code..."
 	cd procguard-wails && go fmt ./...
