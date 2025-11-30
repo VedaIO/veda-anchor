@@ -21,7 +21,7 @@ import (
 type App struct {
 	ctx context.Context
 	*api.Server
-	
+
 	// Legacy field (not used anymore)
 	IsNativeMessagingActive bool
 }
@@ -35,15 +35,15 @@ func NewApp() *App {
 // CheckChromeExtension checks if the Chrome extension is connected
 func (a *App) CheckChromeExtension() bool {
 	log := data.GetLogger() // Use the logger we set up in main.go
-	
+
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
 		log.Printf("[CheckExt] Error getting cache dir: %v", err)
 		return false
 	}
-	
+
 	heartbeatPath := filepath.Join(cacheDir, "procguard", "extension_heartbeat")
-	
+
 	// Read timestamp from file
 	content, err := os.ReadFile(heartbeatPath)
 	if err != nil {
@@ -53,27 +53,19 @@ func (a *App) CheckChromeExtension() bool {
 		}
 		return false
 	}
-	
+
 	// Parse timestamp
 	var lastPing int64
 	if _, err := fmt.Sscanf(string(content), "%d", &lastPing); err != nil {
 		log.Printf("[CheckExt] Error parsing timestamp '%s': %v", string(content), err)
 		return false
 	}
-	
+
 	// Check if ping is recent (within last 10 seconds)
 	pingTime := time.Unix(lastPing, 0)
 	timeSince := time.Since(pingTime)
 	isValid := timeSince < 10*time.Second
-	
-	if isValid {
-		// Only log on success to avoid spamming
-		// log.Printf("[CheckExt] Valid heartbeat found! Age: %v", timeSince)
-	} else {
-		// Log why it failed (stale)
-		// log.Printf("[CheckExt] Stale heartbeat. Age: %v (Limit: 10s)", timeSince)
-	}
-	
+
 	return isValid
 }
 
@@ -91,7 +83,7 @@ func (a *App) CheckChromeExtension() bool {
 // Returns: error if command fails to start, nil on success
 func (a *App) OpenBrowser(url string) error {
 	var cmd *exec.Cmd
-	
+
 	switch runtime.GOOS {
 	case "windows":
 		cmd = exec.Command("cmd", "/c", "start", url)
@@ -100,7 +92,7 @@ func (a *App) OpenBrowser(url string) error {
 	case "linux":
 		cmd = exec.Command("xdg-open", url)
 	}
-	
+
 	return cmd.Start()
 }
 
@@ -112,7 +104,8 @@ func (a *App) OpenBrowser(url string) error {
 //
 // Used by: OnSecondInstanceLaunch callback - when user double-clicks exe while app is running
 // Context: With HideWindowOnClose=true, closing the window hides it but keeps daemon running
-//          When user runs exe again, SingleInstanceLock prevents new process and calls this instead
+//
+//	When user runs exe again, SingleInstanceLock prevents new process and calls this instead
 func (a *App) ShowWindow() {
 	wailsruntime.WindowUnminimise(a.ctx)
 	wailsruntime.Show(a.ctx)

@@ -50,7 +50,7 @@ func (a *App) startup(ctx context.Context) {
 
 	// Start the background daemon that monitors processes and web activity
 	// This runs independently of the GUI - continues even when window is hidden
-	daemon.StartDaemon(a.Server.Logger, db)
+	daemon.StartDaemon(a.Logger, db)
 
 	// Ensure Native Messaging Host is registered
 	// This creates the registry key and manifest file so Chrome can find us
@@ -68,15 +68,15 @@ func main() {
 	// Use absolute path in CacheDir because CWD varies when launched by Chrome
 	cacheDir, _ := os.UserCacheDir()
 	logDir := filepath.Join(cacheDir, "procguard", "logs")
-	os.MkdirAll(logDir, 0755)
-	
+	_ = os.MkdirAll(logDir, 0755)
+
 	logPath := filepath.Join(logDir, "procguard_debug.log")
 	logFile, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if logFile != nil {
-		defer logFile.Close()
+		defer func() { _ = logFile.Close() }()
 		log.SetOutput(logFile)
 	}
-	
+
 	log.Printf("=== PROCGUARD LAUNCHED === Args: %v", os.Args)
 	log.Printf("CWD: %v", func() string { wd, _ := os.Getwd(); return wd }())
 
@@ -93,7 +93,7 @@ func main() {
 	// MODE 2: GUI APPLICATION
 	// User launched us (double-click, start menu, etc.)
 	log.Println("[MODE] GUI Application detected")
-	
+
 	app := NewApp()
 
 	// Create and run the Wails application
@@ -106,10 +106,10 @@ func main() {
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
-		
+
 		// HideWindowOnClose: Keep app running in background
 		HideWindowOnClose: true,
-		
+
 		// SingleInstanceLock: Ensure only one GUI instance runs
 		SingleInstanceLock: &options.SingleInstanceLock{
 			UniqueId: "com.procguard.wails-app",
@@ -118,7 +118,7 @@ func main() {
 				app.ShowWindow()
 			},
 		},
-		
+
 		Bind: []interface{}{
 			app,
 		},

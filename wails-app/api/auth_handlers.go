@@ -53,7 +53,7 @@ func (s *Server) SetPassword(password string) error {
 	}
 
 	if cfg.PasswordHash != "" {
-		return fmt.Errorf("Password already set")
+		return fmt.Errorf("password already set")
 	}
 
 	hash, err := auth.HashPassword(password)

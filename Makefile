@@ -24,7 +24,7 @@ fmt:
 
 lint:
 	cd wails-app && GOOS=windows golangci-lint run
-	cd frontend && npm run lint
+	cd wails-app/frontend && npm run lint
 
 clean:
 	@echo "Cleaning..."

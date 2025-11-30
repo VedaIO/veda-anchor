@@ -31,7 +31,7 @@ func (s *Server) Uninstall(password string) error {
 	}
 
 	if !auth.CheckPasswordHash(password, cfg.PasswordHash) {
-		return fmt.Errorf("Invalid password")
+		return fmt.Errorf("invalid password")
 	}
 
 	go func() {

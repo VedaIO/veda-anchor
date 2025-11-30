@@ -79,7 +79,7 @@ func (s *Server) LoadAppBlocklist(content []byte) error {
 	if err != nil {
 		err2 := json.Unmarshal(content, &savedList)
 		if err2 != nil {
-			return fmt.Errorf("Invalid JSON format in uploaded file")
+			return fmt.Errorf("invalid JSON format in uploaded file")
 		}
 		newEntries = savedList.Blocked
 	}

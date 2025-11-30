@@ -67,7 +67,7 @@
   onMount(async () => {
     // Check extension status (starts polling automatically)
     checkExtension();
-    
+
     // Check if user is authenticated
     const authenticated = await window.go.main.App.GetIsAuthenticated();
     isAuthenticated.set(authenticated);

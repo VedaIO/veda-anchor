@@ -35,7 +35,7 @@
         untilStr
       );
       console.log('GetWebLogs returned:', data);
-      
+
       if (data && data.length > 0) {
         const items: WebLogItem[] = await Promise.all(
           data.map(async (l: string[]) => {

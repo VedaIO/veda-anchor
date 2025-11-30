@@ -50,12 +50,12 @@ func Run() {
 	// Setup logging to file (CRITICAL for debugging native messaging)
 	cacheDir, _ := os.UserCacheDir()
 	logDir := filepath.Join(cacheDir, "procguard", "logs")
-	os.MkdirAll(logDir, 0755)
+	_ = os.MkdirAll(logDir, 0755)
 
 	logPath := filepath.Join(logDir, "native_host.log")
 	logFile, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if logFile != nil {
-		defer logFile.Close()
+		defer func() { _ = logFile.Close() }()
 		log.SetOutput(logFile)
 	}
 
@@ -229,14 +229,19 @@ func updateHeartbeat() {
 	}
 	heartbeatPath := filepath.Join(cacheDir, "procguard", "extension_heartbeat")
 	// Ensure directory exists
-	os.MkdirAll(filepath.Dir(heartbeatPath), 0755)
+	_ = os.MkdirAll(filepath.Dir(heartbeatPath), 0755)
 
 	timestamp := fmt.Sprintf("%d", time.Now().Unix())
-	os.WriteFile(heartbeatPath, []byte(timestamp), 0644)
+	_ = os.WriteFile(heartbeatPath, []byte(timestamp), 0644)
 }
 
 func sendResponse(msg interface{}) {
 	bytes, _ := json.Marshal(msg)
-	binary.Write(os.Stdout, binary.LittleEndian, uint32(len(bytes)))
-	os.Stdout.Write(bytes)
+	if err := binary.Write(os.Stdout, binary.LittleEndian, uint32(len(bytes))); err != nil {
+		log.Printf("Error writing length to stdout: %v", err)
+		return
+	}
+	if _, err := os.Stdout.Write(bytes); err != nil {
+		log.Printf("Error writing message to stdout: %v", err)
+	}
 }

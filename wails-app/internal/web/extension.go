@@ -35,7 +35,7 @@ func CheckChromeExtension() bool {
 
 func checkExtensionPath(id, homeDir string) bool {
 	var extensionPath string
-	
+
 	switch runtime.GOOS {
 	case "windows":
 		localAppData := os.Getenv("LOCALAPPDATA")

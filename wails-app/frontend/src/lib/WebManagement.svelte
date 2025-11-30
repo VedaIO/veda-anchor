@@ -17,10 +17,14 @@
     <div id="web-extension-not-installed-view" class="text-center">
       <div class="card mt-3">
         <div class="card-body">
-          <h5 class="card-title">Tiện ích mở rộng chưa được cài đặt</h5>
+          <h5 class="card-title">Đã mất kết nối với tiện ích mở rộng</h5>
           <p>
-            Để theo dõi và chặn các trang web, bạn phải tải tiện ích trình duyệt
-            mở rộng của ProcGuard.
+            Để sử dụng tính năng quản lý web, vui lòng đảm bảo tiện ích
+            ProcGuard đã được cài đặt và trình duyệt đang mở.
+          </p>
+          <p class="text-muted small">
+            Nếu bạn vừa đóng trình duyệt, kết nối sẽ tự động được khôi phục khi
+            bạn mở lại.
           </p>
           <button
             type="button"
@@ -28,19 +32,14 @@
             id="install-extension-btn-web"
             on:click={async () => {
               try {
-                await window.go.main.App.OpenBrowser('https://chromewebstore.google.com/detail/procguard-web-monitor/hkanepohpflociaodcicmmfbdaohpceo');
+                await window.go.main.App.OpenBrowser(
+                  'https://chromewebstore.google.com/detail/procguard-web-monitor/hkanepohpflociaodcicmmfbdaohpceo'
+                );
               } catch (err) {
                 console.error('Failed to open browser:', err);
               }
-            }}>Tải tiện ích</button
+            }}>Cài đặt tiện ích</button
           >
-          <button
-            class="btn btn-secondary"
-            id="reload-extension-check-btn"
-            on:click={() => location.reload()}
-          >
-            Tôi đã tải nó, Tải lại
-          </button>
         </div>
       </div>
     </div>
