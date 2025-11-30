@@ -17,11 +17,11 @@ jobs:
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
             experimental-features = nix-command flakes
 
-      - name: Run Frontend Checks
-        run: nix develop --command bash -c 'cd gui && npm install && npm run lint && npm run format-check'
+      - name: Format Codebase
+        run: nix develop --command make fmt
 
-      - name: Build Frontend
-        run: nix develop --command make build-frontend
+      - name: Run Frontend Checks
+        run: nix develop --command bash -c 'cd wails-app/frontend && npm install && npm run lint && npm run format-check'
 
       - name: Run golangci-lint
         run: nix develop --command bash -c 'GOOS=windows golangci-lint run ./...'
