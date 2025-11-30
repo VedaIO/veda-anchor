@@ -105,6 +105,13 @@ func logNewProcesses(appLogger data.Logger, db *sql.DB, runningProcs map[int32]b
 		if !runningProcs[p.Pid] {
 			if shouldLogProcess(p) {
 				name, _ := p.Name()
+
+				// Skip logging ProcGuard itself
+				if strings.ToLower(name) == "procguard.exe" {
+					runningProcs[p.Pid] = true
+					continue
+				}
+
 				parent, _ := p.Parent()
 				parentName := ""
 				if parent != nil {

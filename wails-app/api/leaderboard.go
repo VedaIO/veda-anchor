@@ -7,10 +7,11 @@ import (
 
 // AppLeaderboardItem represents a single item in the application leaderboard.
 type AppLeaderboardItem struct {
-	Rank  int    `json:"rank"`
-	Name  string `json:"name"`
-	Icon  string `json:"icon"`
-	Count int    `json:"count"`
+	Rank        int    `json:"rank"`
+	Name        string `json:"name"`        // Display name (commercial name if available)
+	ProcessName string `json:"processName"` // Actual process name for blocking
+	Icon        string `json:"icon"`
+	Count       int    `json:"count"`
 }
 
 // WebLeaderboardItem represents a single item in the web leaderboard.
@@ -76,17 +77,22 @@ func (s *Server) getAppLeaderboard(since, until string) ([]AppLeaderboardItem, e
 	for rows.Next() {
 		var item AppLeaderboardItem
 		item.Rank = rank
-		if err := rows.Scan(&item.Name, &item.Count); err != nil {
+		var processName string
+		if err := rows.Scan(&processName, &item.Count); err != nil {
 			continue
 		}
 
+		// Store the actual process name for blocking
+		item.ProcessName = processName
+		item.Name = processName // Default display name
+
 		// Enrich with icon and commercial name
 		var exePath string
-		row := s.db.QueryRow("SELECT exe_path FROM app_events WHERE process_name = ? AND exe_path IS NOT NULL ORDER BY start_time DESC LIMIT 1", item.Name)
+		row := s.db.QueryRow("SELECT exe_path FROM app_events WHERE process_name = ? AND exe_path IS NOT NULL ORDER BY start_time DESC LIMIT 1", processName)
 		if err := row.Scan(&exePath); err == nil {
 			commercialName, icon := s.getAppDetails(exePath)
 			if commercialName != "" {
-				item.Name = commercialName
+				item.Name = commercialName // Use commercial name for display
 			}
 			item.Icon = icon
 		}

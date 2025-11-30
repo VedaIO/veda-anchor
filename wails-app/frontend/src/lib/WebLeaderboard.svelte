@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { showToast } from './toastStore';
 
   interface WebLeaderboardItem {
     rank: number;
@@ -25,6 +26,17 @@
     }
   }
 
+  async function blockDomain(domain: string): Promise<void> {
+    try {
+      await window.go.main.App.AddWebBlocklist(domain);
+      showToast(`Đã chặn ${domain}`, 'success');
+      loadWebLeaderboard(); // Refresh
+    } catch (error) {
+      console.error('Error blocking domain:', error);
+      showToast('Lỗi khi chặn trang web.', 'error');
+    }
+  }
+
   onMount(() => {
     loadWebLeaderboard();
     const pollingTimer = setInterval(() => {
@@ -46,6 +58,7 @@
               <th scope="col">Xếp hạng</th>
               <th scope="col">Trang Web</th>
               <th scope="col">Số lần mở</th>
+              <th scope="col">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -68,6 +81,15 @@
                   <span class="fw-bold">{item.title || item.domain}</span>
                 </td>
                 <td>{item.count}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger"
+                    on:click={() => blockDomain(item.domain)}
+                  >
+                    Chặn
+                  </button>
+                </td>
               </tr>
             {/each}
           </tbody>

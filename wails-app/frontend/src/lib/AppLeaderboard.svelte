@@ -1,9 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { showToast } from './toastStore';
 
   interface AppLeaderboardItem {
     rank: number;
     name: string;
+    processName: string;
     icon: string;
     count: number;
   }
@@ -23,6 +25,20 @@
     } catch (error) {
       console.error('Error loading app leaderboard:', error);
       leaderboardData = [];
+    }
+  }
+
+  async function blockApp(
+    processName: string,
+    displayName: string
+  ): Promise<void> {
+    try {
+      await window.go.main.App.BlockApps([processName]);
+      showToast(`Đã chặn ${displayName}`, 'success');
+      loadAppLeaderboard(); // Refresh
+    } catch (error) {
+      console.error('Error blocking app:', error);
+      showToast('Lỗi khi chặn ứng dụng.', 'error');
     }
   }
 
@@ -47,6 +63,7 @@
               <th scope="col">Xếp hạng</th>
               <th scope="col">Ứng dụng</th>
               <th scope="col">Số lần dùng</th>
+              <th scope="col">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -69,6 +86,15 @@
                   <span class="fw-bold">{item.name}</span>
                 </td>
                 <td>{item.count}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger"
+                    on:click={() => blockApp(item.processName, item.name)}
+                  >
+                    Chặn
+                  </button>
+                </td>
               </tr>
             {/each}
           </tbody>
