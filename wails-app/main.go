@@ -6,6 +6,7 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"github.com/wailsapp/wails/v2/pkg/options/windows"
 	"log"
 	"os"
 	"path/filepath"
@@ -98,14 +99,22 @@ func main() {
 
 	// Create and run the Wails application
 	err := wails.Run(&options.App{
-		Title:  "ProcGuard",
-		Width:  1024,
-		Height: 768,
+		Title:     "ProcGuard",
+		Width:     1024,
+		Height:    768,
+		Frameless: true, // Enable frameless mode
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
+
+		// Windows platform specific options
+		Windows: &windows.Options{
+			WebviewIsTransparent:              false,
+			WindowIsTranslucent:               false,
+			DisableFramelessWindowDecorations: false,
+		},
 
 		// HideWindowOnClose: Keep app running in background
 		HideWindowOnClose: true,

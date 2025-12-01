@@ -8,6 +8,7 @@
   import { onMount } from 'svelte';
   import { isAuthenticated } from './lib/authStore';
   import Toast from './lib/Toast.svelte';
+  import GlobalTitleBar from './lib/GlobalTitleBar.svelte';
   import {
     isUninstallModalOpen,
     uninstallPassword,
@@ -79,80 +80,101 @@
   });
 </script>
 
-{#if $isAuthenticated}
-  <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
-      <a
-        class="navbar-brand"
-        href="/"
-        on:click|preventDefault={() => navigate('/')}>ProcGuard</a
-      >
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              href="/"
-              on:click|preventDefault={() => navigate('/')}>Trang chủ</a
-            >
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              href="/settings"
-              on:click|preventDefault={() => navigate('/settings')}>Cài đặt</a
-            >
-          </li>
-        </ul>
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <button class="nav-link btn" on:click={handleStop}
-              >Dừng ProcGuard</button
-            >
-          </li>
-          <li class="nav-item">
-            <!-- Logout button - uses handleLogout() instead of href to properly clear session -->
-            <button class="nav-link btn" on:click={handleLogout}
-              >Đăng xuất</button
-            >
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+<div class="app-container">
+  <GlobalTitleBar />
 
-  <main class="container mt-4">
-    <svelte:component this={routes[$currentPath]} />
-  </main>
+  <div class="app-content">
+    {#if $isAuthenticated}
+      <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+          <a
+            class="navbar-brand"
+            href="/"
+            on:click|preventDefault={() => navigate('/')}>ProcGuard</a
+          >
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div
+            class="collapse navbar-collapse"
+            style="--wails-draggable: drag"
+            id="navbarNav"
+          >
+            <ul class="navbar-nav me-auto">
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  class:active={$currentPath === '/'}
+                  href="/"
+                  on:click|preventDefault={() => navigate('/')}>Trang chủ</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  class:active={$currentPath === '/apps'}
+                  href="/apps"
+                  on:click|preventDefault={() => navigate('/apps')}>Ứng dụng</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  class:active={$currentPath === '/web'}
+                  href="/web"
+                  on:click|preventDefault={() => navigate('/web')}>Web</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  class:active={$currentPath === '/settings'}
+                  href="/settings"
+                  on:click|preventDefault={() => navigate('/settings')}
+                  >Cài đặt</a
+                >
+              </li>
+            </ul>
+            <div class="d-flex align-items-center">
+              <button class="btn btn btn-danger" on:click={handleStop}>
+                Dừng ProcGuard
+              </button>
+              <button class="btn btn-outline-secondary" on:click={handleLogout}>
+                Đăng xuất
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-  <Toast />
-{:else}
-  <svelte:component this={routes['/login']} />
-{/if}
+      <main class="container-fluid py-4">
+        <svelte:component this={routes[$currentPath]} />
+      </main>
 
-<!-- Uninstall Modal -->
+      <Toast />
+    {:else}
+      <svelte:component this={routes['/login']} />
+    {/if}
+  </div>
+</div>
+
 {#if $isUninstallModalOpen}
-  <div class="modal-backdrop fade show"></div>
   <div
     class="modal fade show"
-    style="display: block;"
-    id="uninstall-modal"
     tabindex="-1"
-    aria-labelledby="uninstallModalLabel"
-    aria-hidden="false"
+    role="dialog"
+    style="display: block; background-color: rgba(0,0,0,0.5);"
+    aria-modal="true"
   >
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="uninstallModalLabel">
@@ -196,3 +218,34 @@
     </div>
   </div>
 {/if}
+
+<style>
+  /* Global Reset & Base Styles */
+  :global(html),
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevent body scroll */
+    background-color: #f2f0e3;
+    color: #ffffff;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .app-content {
+    flex: 1;
+    overflow-y: auto; /* Allow content scrolling */
+    display: flex;
+    flex-direction: column;
+  }
+</style>
