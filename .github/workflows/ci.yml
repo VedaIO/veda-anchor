@@ -21,6 +21,7 @@ jobs:
         run: |
           nix develop --command bash -c '
             set -e
+            go install github.com/wailsapp/wails/v2/cmd/wails@latest
             cd wails-app
             
             echo "Running build..."
