@@ -17,7 +17,7 @@ import Toast from './lib/Toast.svelte';
 import WebManagement from './lib/WebManagement.svelte';
 import Welcome from './lib/Welcome.svelte';
 
-const routes: { [key: string]: any } = {
+const routes: Record<string, ComponentType> = {
   '/': Welcome,
   '/apps': AppManagement,
   '/web': WebManagement,

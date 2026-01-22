@@ -2,20 +2,16 @@
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "useDefineForClassFields": true,
     "module": "ESNext",
     "resolveJsonModule": true,
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
-
-    /* Linting */
     "strict": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true // Brought over from node config
   },
-  "include": ["frontend/src/**/*.ts", "frontend/**/*.svelte"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["frontend/src/**/*.ts", "frontend/**/*.svelte", "vite.config.ts"]
 }

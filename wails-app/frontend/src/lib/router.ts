@@ -9,7 +9,7 @@ function getHashPath(): string {
 export const currentPath = writable(getHashPath());
 
 export function navigate(path: string) {
-  window.location.hash = '#' + path;
+  window.location.hash = '#{path}';
   currentPath.set(path);
 }
 

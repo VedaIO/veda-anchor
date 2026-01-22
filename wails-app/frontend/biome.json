@@ -2,7 +2,7 @@
   "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!dist", "!.svelte-kit", "!node_modules"]
+    "includes": ["**", "!dist", "!.svelte-kit", "!node_modules", "!wailsjs"]
   },
   "formatter": {
     "enabled": true,
@@ -22,5 +22,29 @@
     "rules": {
       "recommended": true
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.svelte", "**/*.css"],
+      "javascript": {
+        "formatter": {
+          "quoteStyle": "single"
+        }
+      },
+      "linter": {
+        "rules": {
+          "style": {
+            "useConst": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          },
+          "complexity": {
+            "noImportantStyles": "off"
+          }
+        }
+      }
+    }
+  ]
 }

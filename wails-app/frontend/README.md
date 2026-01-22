@@ -16,19 +16,18 @@ The frontend is a Single Page Application (SPA) built with **Svelte 5** and **Ty
 frontend/
 ├── src/
 │   ├── App.svelte           # Main entry point, hash-based routing
-│   ├── lib/
-│   │   ├── extensionStore.ts # Extension status polling
-│   │   ├── WebManagement.svelte # Web features container
-│   │   ├── WebLog.svelte     # Web history view
-│   │   ├── Welcome.svelte    # Dashboard with screen time
-│   │   ├── Settings.svelte   # App configuration
-│   │   ├── Login.svelte      # Authentication
-│   │   ├── Toast.svelte      # Global notifications
-│   │   ├── GlobalTitleBar.svelte # Custom window controls
-│   │   └── modalStore.ts     # Password confirmation modal
-│   └── wails.d.ts           # TypeScript declarations for backend
+│   └── lib/
+│       ├── extensionStore.ts # Extension status polling
+│       ├── WebManagement.svelte # Web features container
+│       ├── WebLog.svelte     # Web history view
+│       ├── Welcome.svelte    # Dashboard with screen time
+│       ├── Settings.svelte   # App configuration
+│       ├── Login.svelte      # Authentication
+│       ├── Toast.svelte      # Global notifications
+│       ├── GlobalTitleBar.svelte # Custom window controls
+│       └── modalStore.ts     # Password confirmation modal
 ├── dist/                    # Build output (embedded in Go binary)
-└── wailsjs/                 # Auto-generated Wails bindings (DO NOT EDIT)
+└── wailsjs/                 # Auto-generated Wails bindings (DO NOT TOUCH)
 ```
 
 ### Backend Communication

@@ -13,7 +13,7 @@ interface WebLogItem {
 }
 
 let q = '';
-let webLogItems = writable<WebLogItem[]>([]);
+const webLogItems = writable<WebLogItem[]>([]);
 let since: Date | null = null;
 let until: Date | null = new Date();
 
