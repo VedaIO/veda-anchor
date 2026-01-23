@@ -17,6 +17,7 @@
         bun
         zig
         biome
+        upx
       ];
       shellHook = ''
         go env -w GOPATH=$HOME/.local/share/go

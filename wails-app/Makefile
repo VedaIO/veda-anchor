@@ -8,10 +8,9 @@ VERSION ?= $(shell git describe --tags --always --dirty --first-parent 2>/dev/nu
 .PHONY: all build build-debug fmt clean
 
 all: build
-# DO NOT ADD -s FLAG OR ELSE ANTI VIRUS WILL TRIGGER
 build:
 	@echo "Building ProcGuard for windows..."
-	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu -Wl,--subsystem,windows" wails build -platform windows/amd64 -ldflags="-w -X main.version=$(VERSION)"
+	CGO_ENABLED=1 CC="zig cc -target x86_64-windows-gnu -Wl,--subsystem,windows" wails build -platform windows/amd64 -ldflags="-w -s -X main.version=$(VERSION)" --upx --upxflags "--best --lzma"
 
 build-debug:
 	@echo "Building ProcGuard for windows (debug)..."
