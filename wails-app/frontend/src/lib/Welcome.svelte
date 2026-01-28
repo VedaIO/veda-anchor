@@ -50,8 +50,8 @@ onMount(() => {
 
 <div id="welcome-view">
   <!-- Welcome Jumbotron -->
-  <div class="p-5 mb-4 bg-body-tertiary rounded-3">
-    <div class="container-fluid py-5">
+  <div class="p-3 p-md-5 mb-4 bg-body-tertiary rounded-3">
+    <div class="container-fluid py-3 py-md-5">
       <h1 class="display-5 fw-bold text-dark">Chào mừng đến với ProcGuard</h1>
       <p class="col-md-8 fs-4 text-dark">
         Đây là trung tâm điều khiển của bạn.<br />
@@ -62,7 +62,7 @@ onMount(() => {
 
   <div class="row align-items-md-stretch">
     <div class="col-md-6 mb-4">
-      <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+      <div class="h-100 p-3 p-md-5 bg-body-tertiary border rounded-3">
         <h2 class="text-dark">Quản lý Ứng dụng</h2>
         <p class="text-dark">
           Xem lại lịch sử sử dụng ứng dụng, chặn hoặc bỏ chặn các chương trình.
@@ -77,7 +77,7 @@ onMount(() => {
       </div>
     </div>
     <div class="col-md-6 mb-4">
-      <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+      <div class="h-100 p-3 p-md-5 bg-body-tertiary border rounded-3">
         <h2 class="text-dark">Quản lý Web</h2>
         <p class="text-dark">
           Xem lại lịch sử truy cập web và quản lý danh sách các trang web bị

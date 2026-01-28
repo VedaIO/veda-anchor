@@ -55,7 +55,7 @@ onMount(() => {
 <div class="card mt-3">
   <div class="card-body">
     <h5 class="card-title">Bảng xếp hạng ứng dụng</h5>
-    <div id="app-leaderboard-table-container">
+    <div id="app-leaderboard-table-container" class="table-responsive">
       {#if leaderboardData.length > 0}
         <table class="table table-hover">
           <thead>

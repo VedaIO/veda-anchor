@@ -246,6 +246,7 @@ onMount(async () => {
   .app-content {
     flex: 1;
     overflow-y: auto; /* Allow content scrolling */
+    overflow-x: hidden; /* Prevent horizontal swipe */
     display: flex;
     flex-direction: column;
   }
