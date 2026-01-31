@@ -42,7 +42,7 @@ jobs:
       
       - name: Build Frontend
         run: |
-          nix develop --command bash -c "cd wails-app/frontend && bun run build"
+          nix develop --command bash -c "cd wails-app/frontend && bun install && bun run build"
       
       - name: Run Linter
         run: |
