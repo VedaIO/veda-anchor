@@ -40,12 +40,12 @@ jobs:
       
       - name: Build Frontend
         run: |
-          nix develop --command bash -c "cd wails-app/frontend && bun install && bun run build"
+          nix develop --command bash -c "cd src/frontend && bun install && bun run build"
       
       - name: Run Linter
         run: |
-          nix develop --command bash -c "cd wails-app && make lint"
+          nix develop --command bash -c "cd src && make lint"
 
       - name: Frontend Format Check
         run: |
-          nix develop --command bash -c "cd wails-app/frontend && bun run format-check"
+          nix develop --command bash -c "cd src/frontend && bun run format-check"
