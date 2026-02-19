@@ -1,1 +1,0 @@
-App management specifics

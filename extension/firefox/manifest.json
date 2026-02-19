@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "ProcGuard Web Monitor",
+  "name": "Veda Web Monitor",
   "version": "1.2",
-  "description": "Monitors web activity and blocks websites based on the ProcGuard blocklist.",
+  "description": "Monitors web activity and blocks websites based on the Veda blocklist.",
   "browser_specific_settings": {
     "gecko": {
-      "id": "procguard@infraflakes.com",
+      "id": "Veda@infraflakes.com",
       "data_collection_permissions": {
         "required": [
           "none"

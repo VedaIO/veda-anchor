@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ProcGuard Web Monitor",
+  "name": "Veda Web Monitor",
   "version": "1.2",
-  "description": "Monitors web activity and blocks websites based on the ProcGuard blocklist.",
+  "description": "Monitors web activity and blocks websites based on the Veda blocklist.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvmzvTHupH4kPmoRiWJxeWz7Iw8jxrUT4Gm5bB1qZvn8CD1P92tz7On6owiOk+3vlYwBpyhO+YYi8E69KU9alfwm5cGztfC0N+zkuZ6oIEw14IuZxN71semEsX1BTOEaMXl26j8Y2mcOd+1i3NWQFGCAJTtTlv86KJnyOxUGva2LMwHyR8AZw4ApZCMmK4/0op8KORg3tnZS4/Ihe6eKd0G3DvFX1YNncfRu+MTMSpsSWyjU1tf3ujohZit/Tp/UjRc3NuqtBIoA37RQXST5rVEVuI5LzTkgAyMvK/0PnIzIIsPyEBWljPlQa9GpAxIUMATpsQsTYu6bFe4idZqEfqwIDAQAB",
   "permissions": [
     "nativeMessaging",

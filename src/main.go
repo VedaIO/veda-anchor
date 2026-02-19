@@ -76,10 +76,10 @@ func main() {
 	// CRITICAL: Log startup for debugging
 	// Use absolute path in CacheDir because CWD varies when launched by Chrome
 	cacheDir, _ := os.UserCacheDir()
-	logDir := filepath.Join(cacheDir, "ProcGuard", "logs")
+	logDir := filepath.Join(cacheDir, "Veda", "logs")
 	_ = os.MkdirAll(logDir, 0755)
 
-	logPath := filepath.Join(logDir, "procguard_debug.log")
+	logPath := filepath.Join(logDir, "Veda_debug.log")
 	logFile, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if logFile != nil {
 		defer func() { _ = logFile.Close() }()
@@ -119,7 +119,7 @@ func main() {
 
 	// Create and run the Wails application
 	err := wails.Run(&options.App{
-		Title:       "ProcGuard",
+		Title:       "Veda",
 		Width:       1024,
 		Height:      768,
 		Frameless:   true, // Enable frameless mode
@@ -135,7 +135,7 @@ func main() {
 			WebviewIsTransparent:              false,
 			WindowIsTranslucent:               false,
 			DisableFramelessWindowDecorations: false,
-			WebviewUserDataPath:               filepath.Join(os.Getenv("LOCALAPPDATA"), "ProcGuard", "webview"),
+			WebviewUserDataPath:               filepath.Join(os.Getenv("LOCALAPPDATA"), "Veda", "webview"),
 		},
 
 		// HideWindowOnClose: Keep app running in background
@@ -143,7 +143,7 @@ func main() {
 
 		// SingleInstanceLock: Ensure only one GUI instance runs
 		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId: "com.procguard.src",
+			UniqueId: "com.Veda.src",
 			OnSecondInstanceLaunch: func(data options.SecondInstanceData) {
 				log.Println("Second GUI instance detected - showing existing window")
 				app.ShowWindow()

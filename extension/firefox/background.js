@@ -1,4 +1,4 @@
-const hostName = 'com.infraflakes.procguard';
+const hostName = 'com.infraflakes.Veda';
 let port;
 let webBlocklist = [];
 let isPortConnected = false;
@@ -28,7 +28,7 @@ function connect() {
       if (!isExpectedDisconnect) {
         // Retry native messaging connection after 5 seconds
         // This reconnection interval allows the extension to resume functionality quickly
-        // if ProcGuard daemon restarts or connection is lost
+        // if Veda daemon restarts or connection is lost
         setTimeout(connect, 5000);
       }
     });
@@ -89,12 +89,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       func: () => {
         const extensionId = chrome.runtime.id;
         // Remove existing div if it's there
-        const existingDiv = document.getElementById('procguard-extension-id');
+        const existingDiv = document.getElementById('Veda-extension-id');
         if (existingDiv) {
           existingDiv.remove();
         }
         const idDiv = document.createElement('div');
-        idDiv.id = 'procguard-extension-id';
+        idDiv.id = 'Veda-extension-id';
         idDiv.textContent = extensionId;
         idDiv.style.display = 'none';
         document.body.appendChild(idDiv);
