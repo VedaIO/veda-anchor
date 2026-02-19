@@ -1,17 +1,5 @@
-# Wails
-wailsjs/
 build.log
-dist/
-src/build/bin
-frontend/dist/
-
-# IDE
-.idea/
 .vscode/
-
-# Frontend
-node_modules/
-package.json.md5
-# Flake
-
 .direnv/
+bin/
+vedaio.exe
