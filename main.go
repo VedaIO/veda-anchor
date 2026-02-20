@@ -9,6 +9,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"syscall"
+	"time"
+
+	"github.com/Microsoft/go-winio"
 )
 
 // To build the launcher, you must first build veda-engine and veda-ui
@@ -17,18 +20,29 @@ import (
 //go:embed all:bin
 var embeddedBinaries embed.FS
 
+const pipeName = `\\.\pipe\veda`
+
 func main() {
-	cacheDir, err := os.UserCacheDir()
-	if err != nil {
-		log.Fatalf("failed to get cache dir: %v", err)
+	// Setup logging
+	cacheDir, _ := os.UserCacheDir()
+	logDir := filepath.Join(cacheDir, "veda", "logs")
+	_ = os.MkdirAll(logDir, 0755)
+
+	logPath := filepath.Join(logDir, "veda_launcher.log")
+	logFile, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if logFile != nil {
+		defer func() { _ = logFile.Close() }()
+		log.SetOutput(logFile)
 	}
 
+	log.Printf("=== VEDA LAUNCHER STARTED === Args: %v", os.Args)
+
+	// --- Step 1: Extract binaries ---
 	installDir := filepath.Join(cacheDir, "veda", "bin")
 	if err := os.MkdirAll(installDir, 0755); err != nil {
 		log.Fatalf("failed to create install dir: %v", err)
 	}
 
-	// Extract binaries
 	enginePath := filepath.Join(installDir, "veda-engine.exe")
 	uiPath := filepath.Join(installDir, "veda-ui.exe")
 
@@ -39,20 +53,43 @@ func main() {
 		log.Printf("warning: failed to extract UI: %v", err)
 	}
 
-	// Start engine in background
-	log.Println("Starting Veda Engine...")
-	engineCmd := exec.Command(enginePath)
-	engineCmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	if err := engineCmd.Start(); err != nil {
-		log.Printf("error starting engine: %v", err)
+	// --- Step 2: Detect if engine is already running ---
+	engineRunning := isEngineRunning()
+
+	if engineRunning {
+		log.Println("[LAUNCH] Engine already running (pipe detected), skipping engine start")
+	} else {
+		log.Println("[LAUNCH] Engine not running, starting veda-engine...")
+		engineCmd := exec.Command(enginePath)
+		engineCmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+		if err := engineCmd.Start(); err != nil {
+			log.Printf("error starting engine: %v", err)
+		} else {
+			log.Printf("[LAUNCH] Engine started (PID: %d)", engineCmd.Process.Pid)
+			// Give engine a moment to initialize the IPC pipe
+			time.Sleep(500 * time.Millisecond)
+		}
 	}
 
-	// Start UI
-	log.Println("Starting Veda UI...")
+	// --- Step 3: Always start the UI ---
+	log.Println("[LAUNCH] Starting veda-ui...")
 	uiCmd := exec.Command(uiPath)
 	if err := uiCmd.Run(); err != nil {
-		log.Fatalf("error starting UI: %v", err)
+		log.Fatalf("[LAUNCH] error running UI: %v", err)
 	}
+
+	log.Println("[LAUNCH] UI exited, launcher exiting")
+}
+
+// isEngineRunning checks if veda-engine is already running by attempting
+// to connect to the named pipe via go-winio. If the dial succeeds, the engine is up.
+func isEngineRunning() bool {
+	conn, err := winio.DialPipe(pipeName, nil)
+	if err != nil {
+		return false
+	}
+	_ = conn.Close()
+	return true
 }
 
 func extractFile(srcPath, dstPath string) error {

@@ -11,7 +11,7 @@ generate:
 	go generate
 
 build: generate build-engine build-ui
-	@echo "Building Veda IO Launcher..."
+	@echo "Building Veda Launcher..."
 	@mkdir -p bin
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags="-w -H=windowsgui -X main.Version=$(VERSION)" -o veda.exe .
 	upx --best --lzma veda.exe
