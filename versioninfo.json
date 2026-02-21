@@ -21,12 +21,12 @@
     "StringFileInfo": {
         "Comments": "",
         "CompanyName": "VedaIO",
-        "FileDescription": "Veda - Simple Blocker/Monitor for the App and Web",
+        "FileDescription": "Veda Anchor Anchor- Simple Blocker/Monitor for the App and Web",
         "FileVersion": "1.4.3",
-        "InternalName": "veda",
+        "InternalName": "veda-anchor-anchor-anchor",
         "LegalCopyright": "Copyright (c) 2026 VedaIO",
         "LegalTrademarks": "",
-        "OriginalFilename": "veda.exe",
+        "OriginalFilename": "veda-anchor-anchor-anchor.exe",
         "PrivateBuild": "",
         "ProductName": "Veda",
         "ProductVersion": "1.4.3",
@@ -39,5 +39,5 @@
         }
     },
     "IconPath": "",
-    "ManifestPath": "veda.exe.manifest"
+    "ManifestPath": "veda-anchor-anchor-anchor.exe.manifest"
 }

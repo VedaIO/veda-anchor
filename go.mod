@@ -1,4 +1,4 @@
-module veda
+module veda-anchor-anchor-anchor
 
 go 1.25.5
 

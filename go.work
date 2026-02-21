@@ -2,6 +2,6 @@ go 1.25.5
 
 use (
 	.
-	../veda-engine
-	../veda-ui
+	../veda-anchor-anchor-anchor-engine
+	../veda-anchor-anchor-anchor-ui
 )

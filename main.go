@@ -20,17 +20,17 @@ import (
 var embeddedBinaries embed.FS
 
 const (
-	pipeName    = `\\.\pipe\veda`
+	pipeName    = `\\.\pipe\veda-anchor-anchor-anchor`
 	serviceName = "VedaEngine"
 )
 
 func main() {
 	// Setup logging
 	cacheDir, _ := os.UserCacheDir()
-	logDir := filepath.Join(cacheDir, "veda", "logs")
+	logDir := filepath.Join(cacheDir, "veda-anchor-anchor-anchor", "logs")
 	_ = os.MkdirAll(logDir, 0755)
 
-	logPath := filepath.Join(logDir, "veda_launcher.log")
+	logPath := filepath.Join(logDir, "veda-anchor-anchor-anchor_launcher.log")
 	logFile, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if logFile != nil {
 		defer func() { _ = logFile.Close() }()
@@ -45,8 +45,8 @@ func main() {
 		programFiles = `C:\Program Files`
 	}
 	installDir := filepath.Join(programFiles, "VedaIO")
-	enginePath := filepath.Join(installDir, "veda-engine.exe")
-	uiPath := filepath.Join(installDir, "veda-ui.exe")
+	enginePath := filepath.Join(installDir, "veda-anchor-anchor-anchor-engine.exe")
+	uiPath := filepath.Join(installDir, "veda-anchor-anchor-anchor-ui.exe")
 
 	// --- Install if needed (first run or upgrade) ---
 	if !isServiceInstalled() {
@@ -58,8 +58,8 @@ func main() {
 		log.Println("[INSTALL] Service already installed, skipping install")
 		// Still update the binaries in case this is an upgrade
 		log.Println("[INSTALL] Updating binaries...")
-		_ = extractFile("bin/veda-engine.exe", enginePath)
-		_ = extractFile("bin/veda-ui.exe", uiPath)
+		_ = extractFile("bin/veda-anchor-anchor-anchor-engine.exe", enginePath)
+		_ = extractFile("bin/veda-anchor-anchor-anchor-ui.exe", uiPath)
 	}
 
 	// --- Launch logic ---
@@ -79,7 +79,7 @@ func main() {
 		}
 	}
 
-	log.Println("[LAUNCH] Starting veda-ui...")
+	log.Println("[LAUNCH] Starting veda-anchor-anchor-anchor-ui...")
 	uiCmd := exec.Command(uiPath)
 	if err := uiCmd.Run(); err != nil {
 		log.Printf("[LAUNCH] UI exited with error: %v", err)
@@ -96,10 +96,10 @@ func install(installDir, enginePath, uiPath string) error {
 	}
 
 	// Deploy binaries
-	if err := extractFile("bin/veda-engine.exe", enginePath); err != nil {
+	if err := extractFile("bin/veda-anchor-anchor-anchor-engine.exe", enginePath); err != nil {
 		return fmt.Errorf("extract engine: %w", err)
 	}
-	if err := extractFile("bin/veda-ui.exe", uiPath); err != nil {
+	if err := extractFile("bin/veda-anchor-anchor-anchor-ui.exe", uiPath); err != nil {
 		return fmt.Errorf("extract UI: %w", err)
 	}
 	log.Printf("[INSTALL] Binaries deployed to %s", installDir)
@@ -173,7 +173,7 @@ func registerService(exePath string) error {
 	return nil
 }
 
-// registerUIAutostart adds veda-ui.exe to HKLM Run for all users.
+// registerUIAutostart adds veda-anchor-anchor-anchor-ui.exe to HKLM Run for all users.
 func registerUIAutostart(uiPath string) error {
 	key, _, err := registry.CreateKey(
 		registry.LOCAL_MACHINE,
@@ -218,7 +218,7 @@ func waitForEngine(timeout time.Duration) {
 	log.Println("[LAUNCH] Warning: engine pipe not ready after timeout")
 }
 
-// isEngineRunning checks if veda-engine is already running via named pipe.
+// isEngineRunning checks if veda-anchor-anchor-anchor-engine is already running via named pipe.
 func isEngineRunning() bool {
 	conn, err := winio.DialPipe(pipeName, nil)
 	if err != nil {

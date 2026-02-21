@@ -1,10 +1,10 @@
 # Veda
 
-Veda is a Windows-based desktop application for monitoring and controlling processes and web activity on your system. Built with the Wails framework, it combines a Go backend with a Svelte frontend into a native executable, featuring dual-mode operation for both GUI interaction and browser extension communication.
+Veda Anchor Anchoris a Windows-based desktop application for monitoring and controlling processes and web activity on your system. Built with the Wails framework, it combines a Go backend with a Svelte frontend into a native executable, featuring dual-mode operation for both GUI interaction and browser extension communication.
 
 ## Architecture
 
-Veda operates in two distinct modes:
+Veda Anchor Anchoroperates in two distinct modes:
 
 ### GUI Application Mode
 The primary mode where users interact with the application through a native desktop window. The application includes:
