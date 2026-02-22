@@ -1,3 +1,5 @@
+> THE PROJECT IS NOT YET PRODUCTION READY
+
 # Veda
 
 Veda Anchor is a Windows-based desktop application for monitoring and controlling processes and web activity on your system. Built with the Wails framework, it combines a Go backend with a Svelte frontend into a native executable, featuring dual-mode operation for both GUI interaction and browser extension communication.
@@ -96,4 +98,4 @@ The compiled executable will be created in the `build/bin` directory.
 
 - **OS**: Windows 10 or later
 - **Browser**: Chrome, Edge, or Firefox (for web monitoring)
-- **Permissions**: User-level access (no admin required for basic operation)
+- **Permissions**: Admin-level access
