@@ -13,7 +13,6 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/Microsoft/go-winio"
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 	"golang.org/x/sys/windows/svc/mgr"
@@ -23,7 +22,6 @@ import (
 var embeddedBinaries embed.FS
 
 const (
-	pipeName    = `\\.\pipe\veda-anchor`
 	serviceName = "VedaAnchorEngine"
 )
 
@@ -100,14 +98,14 @@ func main() {
 	launchUI(uiPath)
 }
 
-// launchUI starts the UI executable and waits for it to exit.
+// launchUI starts the UI executable and exits the launcher.
 func launchUI(uiPath string) {
 	log.Println("[LAUNCH] Starting veda-anchor-ui...")
 	uiCmd := exec.Command(uiPath)
-	if err := uiCmd.Run(); err != nil {
-		log.Printf("[LAUNCH] UI exited with error: %v", err)
+	if err := uiCmd.Start(); err != nil {
+		log.Printf("[LAUNCH] Failed to start UI: %v", err)
 	}
-	log.Println("[LAUNCH] UI exited, launcher exiting")
+	log.Println("[LAUNCH] UI launched, launcher exiting")
 }
 
 // isAdmin checks if the current process is running with elevated privileges.
@@ -286,14 +284,24 @@ func waitForEngine(timeout time.Duration) {
 	log.Println("[LAUNCH] Warning: engine pipe not ready after timeout")
 }
 
-// isEngineRunning checks if veda-anchor-engine is already running via named pipe.
+// isEngineRunning checks if veda-anchor-engine.exe is running (non-admin safe).
 func isEngineRunning() bool {
-	conn, err := winio.DialPipe(pipeName, nil)
+	snapshot, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
 	if err != nil {
 		return false
 	}
-	_ = conn.Close()
-	return true
+	defer windows.CloseHandle(snapshot)
+
+	var procEntry windows.ProcessEntry32
+	procEntry.Size = uint32(unsafe.Sizeof(procEntry))
+
+	for err = windows.Process32First(snapshot, &procEntry); err == nil; err = windows.Process32Next(snapshot, &procEntry) {
+		exeName := windows.UTF16ToString(procEntry.ExeFile[:])
+		if exeName == "veda-anchor-engine.exe" {
+			return true
+		}
+	}
+	return false
 }
 
 func extractFile(srcPath, dstPath string) error {
