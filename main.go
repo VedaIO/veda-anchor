@@ -9,9 +9,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"syscall"
 	"time"
+	"unsafe"
 
 	"github.com/Microsoft/go-winio"
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 	"golang.org/x/sys/windows/svc/mgr"
 )
@@ -47,12 +50,26 @@ func main() {
 		log.SetOutput(logFile)
 	}
 
-	log.Printf("=== VEDA ANCHOR LAUNCHER STARTED === Args: %v", os.Args)
+	log.Printf("=== VEDA ANCHOR LAUNCHER STARTED === Args: %v, Admin: %v", os.Args, isAdmin())
 
 	enginePath := filepath.Join(installDir, "veda-anchor-engine.exe")
 	uiPath := filepath.Join(installDir, "veda-anchor-ui.exe")
 
-	// --- Install if needed ---
+	// --- Fast path: engine already running, no admin needed ---
+	if isEngineRunning() {
+		log.Println("[LAUNCH] Engine already running, launching UI directly")
+		launchUI(uiPath)
+		return
+	}
+
+	// --- Engine not running: need admin privileges ---
+	if !isAdmin() {
+		log.Println("[LAUNCH] Engine not running and not admin, showing error prompt")
+		showErrorAndExit("Veda Anchor", "The engine is not running.\nPlease right-click the launcher and select \"Run as administrator\" to install or restart the service.")
+		return
+	}
+
+	// --- Admin path: install if needed, then start service ---
 	serviceOK := isServiceInstalled()
 	binariesOK := fileExists(enginePath) && fileExists(uiPath)
 
@@ -70,30 +87,52 @@ func main() {
 		}
 	}
 
-	// --- Launch logic ---
-	if isEngineRunning() {
-		// Engine is already running (service is active)
-		// Just launch the UI
-		log.Println("[LAUNCH] Engine already running, launching UI only")
+	// Start the service
+	log.Println("[LAUNCH] Starting service...")
+	if err := startService(); err != nil {
+		log.Printf("[LAUNCH] Warning: failed to start service: %v", err)
 	} else {
-		// Engine not running, start the service
-		log.Println("[LAUNCH] Engine not running, starting service...")
-		if err := startService(); err != nil {
-			log.Printf("[LAUNCH] Warning: failed to start service: %v", err)
-		} else {
-			log.Println("[LAUNCH] Service started, waiting for pipe...")
-			// Wait for the IPC pipe to become available
-			waitForEngine(5 * time.Second)
-		}
+		log.Println("[LAUNCH] Service started, waiting for pipe...")
+		// Wait for the IPC pipe to become available
+		waitForEngine(5 * time.Second)
 	}
 
+	launchUI(uiPath)
+}
+
+// launchUI starts the UI executable and waits for it to exit.
+func launchUI(uiPath string) {
 	log.Println("[LAUNCH] Starting veda-anchor-ui...")
 	uiCmd := exec.Command(uiPath)
 	if err := uiCmd.Run(); err != nil {
 		log.Printf("[LAUNCH] UI exited with error: %v", err)
 	}
-
 	log.Println("[LAUNCH] UI exited, launcher exiting")
+}
+
+// isAdmin checks if the current process is running with elevated privileges.
+func isAdmin() bool {
+	return windows.GetCurrentProcessToken().IsElevated()
+}
+
+// showErrorAndExit displays a Windows message box and exits.
+func showErrorAndExit(title, message string) {
+	var (
+		user32         = syscall.NewLazyDLL("user32.dll")
+		procMessageBox = user32.NewProc("MessageBoxW")
+	)
+
+	titlePtr, _ := syscall.UTF16PtrFromString(title)
+	msgPtr, _ := syscall.UTF16PtrFromString(message)
+
+	// MB_OK | MB_ICONERROR = 0x00000010
+	procMessageBox.Call(0,
+		uintptr(unsafe.Pointer(msgPtr)),
+		uintptr(unsafe.Pointer(titlePtr)),
+		uintptr(0x10),
+	)
+
+	os.Exit(1)
 }
 
 // install performs first-time setup: deploy binaries, register service, set up UI autostart.
@@ -126,7 +165,7 @@ func install(installDir, enginePath, uiPath string) error {
 	return nil
 }
 
-// isServiceInstalled checks if the VedaEngine service exists in SCM.
+// isServiceInstalled checks if the VedaAnchorEngine service exists in SCM.
 func isServiceInstalled() bool {
 	m, err := mgr.Connect()
 	if err != nil {
@@ -165,7 +204,7 @@ func deleteService() {
 	time.Sleep(500 * time.Millisecond)
 }
 
-// registerService creates the AnchorEngine Windows Service with recovery actions.
+// registerService creates the VedaAnchorEngine Windows Service with recovery actions.
 func registerService(exePath string) error {
 	m, err := mgr.Connect()
 	if err != nil {
@@ -217,7 +256,7 @@ func registerUIAutostart(uiPath string) error {
 	return key.SetStringValue("VedaAnchorUI", fmt.Sprintf(`"%s"`, uiPath))
 }
 
-// startService starts the VedaEngine service via SCM.
+// startService starts the VedaAnchorEngine service via SCM.
 func startService() error {
 	m, err := mgr.Connect()
 	if err != nil {
