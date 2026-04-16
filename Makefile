@@ -6,6 +6,10 @@ VERSION ?= $(shell git describe --tags --always --dirty --first-parent 2>/dev/nu
 
 all: build
 
+init:
+	go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
+	go install github.com/wailsapp/wails/v2/cmd/wails@latest
+
 generate:
 	@echo "Generating version info..."
 	go generate
