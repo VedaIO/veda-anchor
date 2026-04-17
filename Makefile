@@ -52,4 +52,6 @@ clean:
 	$(MAKE) -C ../veda-anchor-ui clean
 
 lint:
-	CGO_ENABLED=0 GOOS=windows golangci-lint run
+	GOOS=windows go vet ./...
+	GOOS=windows go fix ./...
+	GOOS=windows golangci-lint run
